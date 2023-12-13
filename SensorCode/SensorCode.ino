@@ -32,7 +32,7 @@ void setup() {
 
   // Warte, bis die Verbindung hergestellt ist
   while (!client.connected()) {
-    if (client.connect("ESP-franz")) {
+    if (client.connect("ESP-julien")) {
       Serial.println("Verbunden mit MQTT-Broker");
     } else {
       Serial.print("Fehler beim Verbinden mit MQTT-Broker, rc=");
