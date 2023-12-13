@@ -1,0 +1,2 @@
+SECRET='your-secret';
+#define MQTT_SERVER "yor-mqtt-server"
