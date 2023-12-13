@@ -51,10 +51,10 @@ const logsTopic = process.env.MQTT_LOGS_TOPIC;
     });
     mqttClient.subscribe(humidityTopic, function (err) {
       if (!err) {
-        console.log(`Erfolgreich auf Thema "${humidityTopicTopic}" subscribed`);
+        console.log(`Erfolgreich auf Thema "${humidityTopic}" subscribed`);
       }
     });
-    const logMessage = `SensorService with  Client-ID ${MqttclientId} verbunden. (Julien)`;
+    const logMessage = `SensorService with Client-ID ${MqttclientId} verbunden. (Julien)`;
     mqttClient.publish(logsTopic, logMessage);
   });
 
