@@ -1,15 +1,24 @@
-const sqlite3 = require('sqlite3').verbose();
-
 // Funktion zum Erstellen der Tabellen
-function createTables(db) {
-  db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS temperature_data (
-      id TEXT PRIMARY KEY,
+async function createTables(db) {
+  try {
+    await db.run(`CREATE TABLE IF NOT EXISTS temperature_data (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       temperature REAL,
       mac TEXT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-  });
+
+    await db.run(`CREATE TABLE IF NOT EXISTS esp_devices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      mac TEXT,
+      username TEXT,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+    console.log('Tabellen erfolgreich erstellt oder bereits vorhanden.');
+  } catch (err) {
+    console.error('Fehler beim Erstellen der Tabellen:', err);
+  }
+
 }
 
 // Export der Funktion
