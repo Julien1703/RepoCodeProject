@@ -1,46 +1,35 @@
 <script>
-    import axios from "axios";
-    import AddEsp from "./AddEsp.svelte";
-    import { push } from "svelte-spa-router";
+  import axios from "axios";
+  import { push } from "svelte-spa-router";
+  import { isLoggedIn, token } from './store';
+  
+  let username = "";
+  let password = "";
 
-    let username = "";
-    let password = "";
-    let loggedIn = false;
-    let token = "";
-
-    async function loginUser() {
-        try {
-            const response = await axios.post("http://localhost:3001/login", {
-                username,
-                password,
-            });
-            console.log("Login erfolgreich:", response);
-            token = response.data.token;
-            console.log("Token:", token);
-            loggedIn = true;
-            push("#/data");
-        } catch (error) {
-            console.error("Fehler beim Login:", error);
-        }
+  async function loginUser() {
+      try {
+          const response = await axios.post("http://localhost:3001/login", { username, password });
+          console.log("Login erfolgreich:", response);
+          token.set(response.data.token);
+          isLoggedIn.set(true);
+          push("/data");
+      } catch (error) {
+          console.error("Fehler beim Login:", error);
+      }
+  }
+  function logoutUser() {
+        token.set("");
+        isLoggedIn.set(false);
+        push("/login");
     }
 
-    function logoutUser() {
-        token = "";
-        loggedIn = false;
-    }
-
-    // axios interceptor for JWT:
-    axios.interceptors.request.use(
-        (config) => {
-            console.log("axios interceptor:", token);
-            console.log(token)
-            config.headers.authorization = `Bearer ${token}`;
-            return config;
-        },
-        (error) => {
-            return Promise.reject(error);
-        },
-    );
+  // axios interceptor for JWT:
+  axios.interceptors.request.use((config) => {
+      config.headers.authorization = `Bearer ${$token}`;
+      return config;
+  }, (error) => {
+      return Promise.reject(error);
+  });
 </script>
 
 <style>
@@ -104,9 +93,8 @@
   </style>
   
   <div class="container">
-    
-    {#if !loggedIn}
-      <form on:submit|preventDefault={loginUser}>
+    {#if !$isLoggedIn}
+        <form on:submit|preventDefault={loginUser}>
         <h1>Login</h1>
 
         <div>
@@ -120,7 +108,7 @@
         <button type="submit">Einloggen</button>
       </form>
     {:else}
-      <AddEsp {username} />
+      <!-- <AddEsp {$username} /> -->
       <button on:click={logoutUser}>Ausloggen</button>
     {/if}
   </div>

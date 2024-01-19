@@ -1,16 +1,19 @@
 <script>
   import axios from "axios";
+    import { push } from "svelte-spa-router";
+    import {username} from './store'
 
-  let username = "";
   let password = "";
 
   async function registerUser() {
+    console.log($username);
     try {
       const response = await axios.post("http://localhost:3001/register", {
-        username: username,
+        username: $username,
         password: password,
       });
       console.log("Registrierung erfolgreich:", response);
+      push("#/addesp");
     } catch (error) {
       console.error("Fehler bei der Registrierung:", error);
     }
@@ -22,7 +25,7 @@
     <h1>Registrieren</h1>
     <div>
       <label for="username">Benutzername:</label>
-      <input id="username" type="text" bind:value={username} />
+      <input id="username" type="text" bind:value={$username} />
     </div>
     <div>
       <label for="password">Passwort:</label>

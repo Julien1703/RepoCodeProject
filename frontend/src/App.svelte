@@ -4,24 +4,34 @@
   import Router from "svelte-spa-router";
   import EspData from "./EspData.svelte";
   import DeviceData from "./DeviceData.svelte";
+  import { isLoggedIn } from './store';
+  import { push } from 'svelte-spa-router';
 
   const routes = {
-    "/": Login,
-    "/login": Login,
-    "/register": Register,
-    "/data": EspData,
-    "/devicedata/:mac": DeviceData
+      "/": Login,
+      "/login": Login,
+      "/register": Register,
+      "/data": EspData,
+      "/devicedata/:mac": DeviceData
+  }
+
+  function logoutUser() {
+      isLoggedIn.set(false);
+      push('/login');
   }
 </script>
 
 <nav>
-  <a href="#/login">Login</a>
-  <a href="#/register">Register</a>
-  <a href="#/data">Devices</a>
+  {#if $isLoggedIn}
+      <a href="#/data">Devices</a>
+      <a href="#/login" on:click={logoutUser}>Logout</a>
+  {:else}
+      <a href="#/login">Login</a>
+      <a href="#/register">Register</a>
+  {/if}
 </nav>
 
 <main>
-  <!-- <h1>Sensor Daten</h1> -->
   <Router {routes} />
 </main>
 

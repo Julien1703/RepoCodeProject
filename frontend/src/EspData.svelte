@@ -2,28 +2,33 @@
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { push } from 'svelte-spa-router';
-
+  import { isLoggedIn } from './store';
 
   let sensorData = [];
 
   onMount(async () => {
-    try {
-      const response = await axios.post('http://localhost:3000/data');
-      console.log('Token-Verifizierung:', response);
-      sensorData = response.data;
-    } catch (error) {
-      console.error('Fehler beim Abrufen der Sensor-Daten:', error);
+    if (!$isLoggedIn) {
+      push('/login');
+    } else {
+      try {
+        const response = await axios.post('http://localhost:3000/data');
+        console.log('Token-Verifizierung:', response);
+        sensorData = response.data;
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Sensor-Daten:', error);
+      }
     }
   });
 
   const viewDeviceData = (mac) => {
-    push(`#/devicedata/${mac}`); // Ändern Sie dies entsprechend Ihrer Routing-Logik
+    push(`#/devicedata/${mac}`);
   };
 </script>
+
 <style>
   .esp-container {
     display: flex;
-    justify-content: space-between; /* Stellt den Abstand zwischen den Elementen ein */
+    justify-content: space-between;
     align-items: center;
     margin: 10px 0;
     padding: 15px;
@@ -34,7 +39,7 @@
   }
 
   .esp-data {
-    margin-right: 20px; /* Fügt Abstand zwischen Text und Button hinzu */
+    margin-right: 20px;
   }
 
   button {
@@ -52,15 +57,12 @@
   }
 </style>
 
-
-
 <!-- HTML Teil -->
-
 {#if sensorData.length > 0}
-  <h2>Device auflistung</h2>
+  <h2>Device Auflistung</h2>
   {#each sensorData as data}
     <div class="esp-container">
-      <p class="esp-data">{data.sensorType}: {data.value} - {new Date(data.timestamp).toLocaleString()}</p>
+      <p class="esp-data">{data.devicename}: {data.raum} - {new Date(data.timestamp).toLocaleString()}</p>
       <button on:click={() => viewDeviceData(data.mac)}>Gerätedaten anzeigen</button>
     </div>
   {/each}
