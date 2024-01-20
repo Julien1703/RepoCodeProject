@@ -4,30 +4,38 @@
   import Router from "svelte-spa-router";
   import EspData from "./EspData.svelte";
   import DeviceData from "./DeviceData.svelte";
-  import { isLoggedIn } from './store';
-  import { push } from 'svelte-spa-router';
+  import { isLoggedIn } from "./store";
+  import { push } from "svelte-spa-router";
+  import AddEsp from "./AddEsp.svelte";
 
   const routes = {
-      "/": Login,
-      "/login": Login,
-      "/register": Register,
-      "/data": EspData,
-      "/devicedata/:mac": DeviceData
-  }
+    "/": Login,
+    "/login": Login,
+    "/register": Register,
+    "/data": EspData,
+    "/addesp": AddEsp,
+    "/devicedata/:mac": DeviceData,
+  };
 
   function logoutUser() {
-      isLoggedIn.set(false);
-      push('/login');
+    isLoggedIn.set(false);
+    // Entfernen Sie alle relevanten Schlüssel aus dem localStorage
+    localStorage.clear();
+
+    // Navigieren zur Login-Seite und dann die Seite neu laden
+    push("/login").then(() => {
+      window.location.reload();
+    });
   }
 </script>
 
 <nav>
   {#if $isLoggedIn}
-      <a href="#/data">Devices</a>
-      <a href="#/login" on:click={logoutUser}>Logout</a>
+    <a href="#/addesp">Devices</a>
+    <a href="#/login" on:click={logoutUser}>Logout</a>
   {:else}
-      <a href="#/login">Login</a>
-      <a href="#/register">Register</a>
+    <a href="#/login">Login</a>
+    <a href="#/register">Register</a>
   {/if}
 </nav>
 
@@ -36,7 +44,8 @@
 </main>
 
 <style>
-  :global(html), :global(body) {
+  :global(html),
+  :global(body) {
     margin: 0;
     padding: 0;
     height: 100%;

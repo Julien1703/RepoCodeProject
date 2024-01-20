@@ -17,11 +17,6 @@
           console.error("Fehler beim Login:", error);
       }
   }
-  function logoutUser() {
-        token.set("");
-        isLoggedIn.set(false);
-        push("/login");
-    }
 
   // axios interceptor for JWT:
   axios.interceptors.request.use((config) => {
@@ -109,7 +104,7 @@
       </form>
     {:else}
       <!-- <AddEsp {$username} /> -->
-      <button on:click={logoutUser}>Ausloggen</button>
+      <!-- <button on:click={logoutUser}>Ausloggen</button> -->
     {/if}
   </div>
   
