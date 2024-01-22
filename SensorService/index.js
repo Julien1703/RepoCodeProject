@@ -183,6 +183,25 @@ app.post("/devicedata/:mac", async (req, res) => {
       }
   });
   
+
+  // REST API Endpunkt für Raumdaten
+app.get("/raumdata", async (req, res) => {
+  try {
+    await mongoClient.connect();
+    const rooms = await mongoClient
+      .db("userDB")
+      .collection("esp_devices")
+      .aggregate([
+        { $group: { _id: "$raum", devices: { $push: "$$ROOT" } } }
+      ])
+      .toArray();
+    res.status(200).json(rooms);
+  } catch (err) {
+    console.error('Fehler beim Abrufen der Raumdaten:', err);
+    res.status(500).send({ error: "Fehler beim Abrufen der Raumdaten" });
+  }
+});
+
   
 // Serverstart
 const PORT = process.env.PORT || 3000;

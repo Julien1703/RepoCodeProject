@@ -4,9 +4,10 @@
   import Router from "svelte-spa-router";
   import EspData from "./EspData.svelte";
   import DeviceData from "./DeviceData.svelte";
+  import AddEsp from "./AddEsp.svelte";
+  import RaumData from "./RaumData.svelte";
   import { isLoggedIn } from "./store";
   import { push } from "svelte-spa-router";
-  import AddEsp from "./AddEsp.svelte";
 
   const routes = {
     "/": Login,
@@ -15,58 +16,45 @@
     "/data": EspData,
     "/addesp": AddEsp,
     "/devicedata/:mac": DeviceData,
+    "/raumdata": RaumData,
   };
 
   function logoutUser() {
     isLoggedIn.set(false);
-    // Entfernen Sie alle relevanten Schlüssel aus dem localStorage
     localStorage.clear();
-
-    // Navigieren zur Login-Seite und dann die Seite neu laden
     push("/login").then(() => {
       window.location.reload();
     });
   }
 </script>
 
-<nav>
+<footer>
   {#if $isLoggedIn}
-    <a href="#/addesp">Devices</a>
+    <a href="#/raumdata">Räume</a>
+    <a href="#/data">Devices</a>
+    <a href="#/addesp">Device hinzufügen</a>
     <a href="#/login" on:click={logoutUser}>Logout</a>
   {:else}
     <a href="#/login">Login</a>
     <a href="#/register">Register</a>
   {/if}
-</nav>
+</footer>
 
 <main>
   <Router {routes} />
 </main>
 
 <style>
-  :global(html),
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    /* overflow: hidden; Verhindert Scrollen auf der gesamten Seite */
-  }
-  /* Basis-Layout */
-  :global(body) {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-  }
-
-  /* Navigationsleiste */
-  nav {
+  footer {
     background-color: #007bff;
     padding: 10px 0;
     text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
   }
 
-  nav a {
+  footer a {
     color: white;
     margin: 0 15px;
     text-decoration: none;
@@ -74,18 +62,23 @@
     transition: color 0.3s ease;
   }
 
-  nav a:hover {
+  footer a:hover {
     color: #ccc;
     text-decoration: underline;
   }
 
-  /* Hauptinhalt */
   main {
     padding: 20px;
     text-align: center;
+    margin-bottom: 60px; /* Platz für den Footer */
   }
 
-  /* h1 {
-    color: #007bff;
-  } */
+  :global(html), :global(body) {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+  }
 </style>
