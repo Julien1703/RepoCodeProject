@@ -2,28 +2,39 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import { isLoggedIn, token } from './store';
-  
+  import IoIosEye from 'svelte-icons/io/IoIosEye.svelte';
+  import IoIosEyeOff from 'svelte-icons/io/IoIosEyeOff.svelte';
+
   let username = "";
   let password = "";
+  let showPassword = false;
+  let passwordInput; // Referenz zum Input-Element
 
   async function loginUser() {
-      try {
-          const response = await axios.post("http://localhost:3001/login", { username, password });
-          console.log("Login erfolgreich:", response);
-          token.set(response.data.token);
-          isLoggedIn.set(true);
-          push("/data");
-      } catch (error) {
-          console.error("Fehler beim Login:", error);
-      }
+    try {
+      const response = await axios.post("http://localhost:3001/login", { username, password });
+      console.log("Login erfolgreich:", response);
+      token.set(response.data.token);
+      isLoggedIn.set(true);
+      push("/raumdata"); // Geändert von "/data" zu "/raumdata"
+    } catch (error) {
+      console.error("Fehler beim Login:", error);
+    }
   }
 
-  // axios interceptor for JWT:
+  function togglePasswordVisibility() {
+    showPassword = !showPassword;
+    if (passwordInput) {
+      passwordInput.focus();
+      passwordInput.setSelectionRange(passwordInput.value.length, passwordInput.value.length);
+    }
+  }
+
   axios.interceptors.request.use((config) => {
-      config.headers.authorization = `Bearer ${$token}`;
-      return config;
+    config.headers.authorization = `Bearer ${$token}`;
+    return config;
   }, (error) => {
-      return Promise.reject(error);
+    return Promise.reject(error);
   });
 </script>
 
@@ -107,4 +118,5 @@
       <!-- <button on:click={logoutUser}>Ausloggen</button> -->
     {/if}
   </div>
+  
   
