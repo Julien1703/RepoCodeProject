@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { push } from 'svelte-spa-router';
-  import { isLoggedIn } from './store';
 
   let raumData = [];
 
