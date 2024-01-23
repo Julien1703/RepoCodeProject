@@ -20,6 +20,7 @@
   };
 
   function logoutUser() {
+    // isLoggedIn.update(prev=>false);
     isLoggedIn.set(false);
     localStorage.clear();
     push("/login").then(() => {

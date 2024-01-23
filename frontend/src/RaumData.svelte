@@ -18,6 +18,7 @@
   const viewDetailsForRoom = (mac) => {
     push(`/devicedata/${mac}`);
   };
+  
 </script>
 
 <style>
