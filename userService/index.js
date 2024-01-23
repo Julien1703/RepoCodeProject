@@ -102,3 +102,4 @@ const PORT = process.env.USERSERVICE_PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Userservice läuft auf Port ${PORT}`);
 });
+
