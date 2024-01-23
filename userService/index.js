@@ -10,10 +10,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const uri =
-  "mongodb+srv://julienoffray:MongodbJulien02@cluster0.vjspczc.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URI}`;
 
-// const uri = `mongodb+srv://${process.env.MONGODB_USER}: ${MONGODB_PASSWORD}@ ${MONGODB_URI}`;
 const mongoClient = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
