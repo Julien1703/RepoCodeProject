@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { push } from 'svelte-spa-router';
+  import { token } from './store'; // Importiere das Token aus deinem Store
+
 
   let raumData = [];
 

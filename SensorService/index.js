@@ -189,23 +189,45 @@ app.post("/devicedata/:mac", async (req, res) => {
   });
   
 
-  // REST API Endpunkt für Raumdaten
-app.get("/raumdata", async (req, res) => {
+  // REST API Endpunkt für Raumdaten des angemeldeten Benutzers
+app.post("/raumdata", async (req, res) => {
+  console.log("calling /raumdata endpoint");
+  const authheader = req.headers.authorization;
+  if (!authheader || !authheader.split(" ")[1])
+    return res.status(401).send({ error: "Token ist ungültig" });
+  const token = authheader && authheader.split(" ")[1];
+
+  const validationResponse = await axios.get(
+    "http://localhost:3001/validate-token",
+    {
+      headers: { authorization: `Bearer ${token}` },
+    }
+  );
+  console.log("Token-Validierung erfolgreich");
+  console.log(validationResponse.data.user.username);
+  const username = validationResponse.data.user.username;
+  if (!validationResponse.data.isValid) {
+    console.log("Token ist ungültig");
+    return res.status(403).send({ error: "Token ist ungültig" });
+  }
+
   try {
     await mongoClient.connect();
     const rooms = await mongoClient
       .db("userDB")
       .collection("esp_devices")
       .aggregate([
-        { $group: { _id: "$raum", devices: { $push: "$$ROOT" } } }
+        { $match: { username: username } }, // Nur Räume des angemeldeten Benutzers
+        { $group: { _id: "$raum", devices: { $push: "$$ROOT" } } },
       ])
       .toArray();
     res.status(200).json(rooms);
   } catch (err) {
-    console.error('Fehler beim Abrufen der Raumdaten:', err);
+    console.error("Fehler beim Abrufen der Raumdaten:", err);
     res.status(500).send({ error: "Fehler beim Abrufen der Raumdaten" });
   }
 });
+
 
   
 // Serverstart

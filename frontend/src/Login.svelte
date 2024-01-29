@@ -1,22 +1,23 @@
 <script>
   import axios from "axios";
   import { push } from "svelte-spa-router";
-  import { isLoggedIn, token } from './store';
+  import { isLoggedIn, token, username } from './store'; // Füge 'username' aus dem Store hinzu
   import IoIosEye from 'svelte-icons/io/IoIosEye.svelte';
   import IoIosEyeOff from 'svelte-icons/io/IoIosEyeOff.svelte';
 
-  let username = "";
+  let usernameInput = "";
   let password = "";
   let showPassword = false;
   let passwordInput; // Referenz zum Input-Element
 
   async function loginUser() {
     try {
-      const response = await axios.post("http://localhost:3001/login", { username, password });
+      const response = await axios.post("http://localhost:3001/login", { username: usernameInput, password });
       console.log("Login erfolgreich:", response);
       token.set(response.data.token);
       isLoggedIn.set(true);
-      push("/raumdata"); // Geändert von "/data" zu "/raumdata"
+      username.update(prev => usernameInput); // Speichere den Benutzernamen im Store
+      push("/raumdata");
     } catch (error) {
       console.error("Fehler beim Login:", error);
     }
@@ -105,7 +106,15 @@
 
         <div>
           <label for="username">Benutzername:</label>
-          <input id="username" type="text" bind:value={username} />
+          <script>
+            let username = '';
+          </script>
+
+            <script>
+              let inputUsername = '';
+            </script>
+
+            <input id="username" type="text" bind:value={usernameInput} />
         </div>
         <div>
           <label for="password">Passwort:</label>
