@@ -7,4 +7,3 @@ export const username = writable("");
 export const macAddress = writable("");
 export const devicename = writable("");
 export const raum = writable("");
-

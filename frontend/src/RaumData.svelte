@@ -23,34 +23,46 @@
 <style>
   .raum-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #e0f7fa;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-direction: column; /* Ändern der Flex-Richtung auf Spalte */
+    align-items: flex-start; /* Ausrichtung der Elemente am Anfang */
+    margin: 15px 5px;
+    padding: 30px;
+    padding-top: 20px;
+    border-radius: 15px;
+    background-color: #f5f5f5;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Schatten hinzufügen */
+    transition: all 0.3s ease;
+  }
+
+  .raum-container:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
   }
 
   .raum-data {
-    margin-right: 20px;
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 30px; /* Abstand zwischen Text und Button */
   }
 
   button {
-    padding: 10px 15px;
+    width: 100%; /* Button nimmt die volle Breite des Containers ein */
+    padding: 12px 24px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: #007bff;
     color: white;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s, transform 0.3s;
   }
 
   button:hover {
     background-color: #0056b3;
+    transform: scale(1.1);
   }
 </style>
+
 
 <!-- HTML Teil -->
 <div>
