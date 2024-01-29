@@ -2,24 +2,30 @@
   import { onMount } from 'svelte';
   import axios from 'axios';
   import { push } from 'svelte-spa-router';
-  import { token } from './store'; // Importiere das Token aus deinem Store
-
+  import { isLoggedIn, token } from './store';
 
   let raumData = [];
 
   onMount(async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/raumdata');
-      raumData = response.data;
-    } catch (error) {
-      console.error('Fehler beim Abrufen der Raum-Daten:', error);
+    if (!$isLoggedIn) {
+      push('/login');
+    } else {
+      try {
+        const response = await axios.get('http://localhost:3000/raumdata', {
+          headers: {
+            Authorization: `Bearer ${$token}`
+          }
+        });
+        raumData = response.data;
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Raum-Daten:', error);
+      }
     }
   });
 
   const viewDetailsForRoom = (mac) => {
     push(`/devicedata/${mac}`);
   };
-  
 </script>
 
 <style>
