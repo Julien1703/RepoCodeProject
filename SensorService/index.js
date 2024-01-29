@@ -42,7 +42,8 @@ mqttClient.on("connect", () => {
   mqttClient.subscribe([
     process.env.MQTT_TEMPERATURE_TOPIC, 
     process.env.MQTT_HUMIDITY_TOPIC,
-    process.env.MQTT_DUST_TOPIC  // Neues Topic für Staubdaten
+    process.env.MQTT_DUST_TOPIC,
+    process.env.MQTT_CO2_TOPIC
   ], (err) => {
     if (err) {
       console.error("Fehler beim Abonnieren der MQTT-Themen:", err);
@@ -75,7 +76,11 @@ mqttClient.on("message", async (topic, message) => {
       sensorType = "humidity";
     } else if (topic === process.env.MQTT_DUST_TOPIC) {
       sensorType = "staub"; // Stellen Sie sicher, dass dies mit Ihrem MQTT-Nachrichtenformat übereinstimmt
-    } else {
+    }
+    else if (topic === process.env.MQTT_CO2_TOPIC) { 
+      sensorType = "co2"; // Stellen Sie sicher, dass dies mit Ihrem MQTT-Nachrichtenformat übereinstimmt
+    }
+    else {
       console.error("Unbekanntes Topic: " + topic);
       return;
     }
