@@ -63,7 +63,6 @@ mqttClient.on("connect", () => {
   });
 });
 
-// MQTT Nachrichtenhandling und Weiterleitung an WebSocket-Clients
 mqttClient.on("message", async (topic, message) => {
   console.log(`Neue MQTT-Nachricht: ${topic}`);
   const msg = message.toString();
@@ -78,23 +77,27 @@ mqttClient.on("message", async (topic, message) => {
   }
 
   if (data.mac) {
+    // Bestimmen des Sensortyps basierend auf dem Topic
     let sensorType;
-    
     if (topic === process.env.MQTT_TEMPERATURE_TOPIC) {
       sensorType = "temperature";
     } else if (topic === process.env.MQTT_HUMIDITY_TOPIC) {
       sensorType = "humidity";
     } else if (topic === process.env.MQTT_DUST_TOPIC) {
       sensorType = "dust";
-    } else if (topic === process.env.MQTT_CO2_TOPIC) { 
+    } else if (topic === process.env.MQTT_CO2_TOPIC) {
       sensorType = "co2";
     } else {
       console.error("Unbekanntes Topic: " + topic);
       return;
     }
 
-    await mongoClient.connect();
-    const collection = mongoClient.db("userDB").collection("data");
+    // Überprüfen, ob das Gerät einem Benutzer zugeordnet ist
+    const device = await db.collection("esp_devices").findOne({ mac: data.mac });
+    if (!device) {
+      console.error("Gerät nicht in der Datenbank gefunden");
+      return;
+    }
 
     const document = {
       mac: data.mac,
@@ -104,19 +107,17 @@ mqttClient.on("message", async (topic, message) => {
     };
 
     try {
-      await collection.insertOne(document);
-      console.log(`Daten gespeichert für ${sensorType}: ${JSON.stringify(document)}`);
+      await db.collection("data").insertOne(document);
+      console.log(`Daten gespeichert: ${JSON.stringify(document)}`);
+      // Senden der Daten an den entsprechenden WebSocket-Client
+      io.emit('liveData', { mac: data.mac, data: document });
     } catch (e) {
       console.error(`Fehler beim Speichern in die Datenbank: ${e}`);
     }
-
-    // Senden der Live-Daten an alle verbundenen WebSocket-Clients
-    io.emit('liveData', { topic, data });
   } else {
     console.error("Keine MAC-Adresse in den Daten gefunden");
   }
 });
-
 
 // REST API Endpunkte
 app.post("/add-esp-device", async (req, res) => {
@@ -174,7 +175,7 @@ app.post("/data", async (req, res) => {
     const data = await mongoClient
       .db("userDB")
       .collection("esp_devices")
-      .find({ username: username })
+      .find({ username })
       .toArray();
 console.log(data);
     res.status(200).json(data);
@@ -185,7 +186,7 @@ console.log(data);
 });
 
 // GET-Route, um Daten für ein bestimmtes Gerät abzurufen
-app.post("/devicedata/:mac", async (req, res) => {
+app.post("/ /:mac", async (req, res) => {
     const { mac } = req.params;
     console.log('Anfrage für Gerät mit MAC-Adresse:', mac);
   
