@@ -6,11 +6,22 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const cors = require("cors");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const http = require("http");
+const socketIo = require("socket.io");
 
 // Initialisierung von Express und Middleware
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Einrichten des HTTP-Servers und von Socket.io
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*", // Sicherheitsrisiko, bitte anpassen
+    methods: ["GET", "POST"]
+  }
+});
 
 // Initialisierung des MongoDB Clients
 const mongoClient = new MongoClient(process.env.MONGODB_URI, {
@@ -20,7 +31,6 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI, {
     deprecationErrors: true,
   },
 });
-// const mongoClient = new MongoClient(process.env.MONGODB_URI);
 
 // Globaler Verweis auf die Datenbank
 let db;
@@ -53,15 +63,15 @@ mqttClient.on("connect", () => {
   });
 });
 
-
-// MQTT Verbindung und Nachrichtenhandling
+// MQTT Nachrichtenhandling und Weiterleitung an WebSocket-Clients
 mqttClient.on("message", async (topic, message) => {
+  console.log(`Neue MQTT-Nachricht: ${topic}`);
   const msg = message.toString();
   let data;
 
   try {
     data = JSON.parse(msg);
-    console.log("Empfangene Daten:", data); // Protokollieren der empfangenen Daten
+    console.log("Empfangene Daten:", data);
   } catch (e) {
     console.error(`Fehler beim Parsen der MQTT-Nachricht: ${e}`);
     return;
@@ -75,12 +85,10 @@ mqttClient.on("message", async (topic, message) => {
     } else if (topic === process.env.MQTT_HUMIDITY_TOPIC) {
       sensorType = "humidity";
     } else if (topic === process.env.MQTT_DUST_TOPIC) {
-      sensorType = "staub"; // Stellen Sie sicher, dass dies mit Ihrem MQTT-Nachrichtenformat übereinstimmt
-    }
-    else if (topic === process.env.MQTT_CO2_TOPIC) { 
-      sensorType = "co2"; // Stellen Sie sicher, dass dies mit Ihrem MQTT-Nachrichtenformat übereinstimmt
-    }
-    else {
+      sensorType = "dust";
+    } else if (topic === process.env.MQTT_CO2_TOPIC) { 
+      sensorType = "co2";
+    } else {
       console.error("Unbekanntes Topic: " + topic);
       return;
     }
@@ -91,7 +99,7 @@ mqttClient.on("message", async (topic, message) => {
     const document = {
       mac: data.mac,
       sensorType: sensorType,
-      value: data[sensorType], // Stellen Sie sicher, dass dieser Schlüssel im JSON-Objekt vorhanden ist
+      value: data[sensorType],
       timestamp: new Date(),
     };
 
@@ -101,6 +109,9 @@ mqttClient.on("message", async (topic, message) => {
     } catch (e) {
       console.error(`Fehler beim Speichern in die Datenbank: ${e}`);
     }
+
+    // Senden der Live-Daten an alle verbundenen WebSocket-Clients
+    io.emit('liveData', { topic, data });
   } else {
     console.error("Keine MAC-Adresse in den Daten gefunden");
   }
@@ -226,7 +237,7 @@ app.get("/raumdata", async (req, res) => {
   
 // Serverstart
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
-  await connectToDatabase(); // Stellen Sie sicher, dass die Datenbankverbindung hergestellt ist
+server.listen(PORT, async () => {
+  await connectToDatabase();
   console.log(`Server läuft auf Port ${PORT}`);
 });

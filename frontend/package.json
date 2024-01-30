@@ -10,7 +10,9 @@
   },
   "devDependencies": {
     "@iconify/svelte": "^3.1.6",
+    "@rollup/plugin-replace": "^5.0.5",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
+    "dotenv": "^16.4.1",
     "svelte": "^4.2.8",
     "vite": "^5.0.8"
   },
@@ -21,6 +23,7 @@
     "axios": "^1.6.2",
     "chart.js": "^4.4.1",
     "cors": "^2.8.5",
+    "socket.io-client": "^4.7.4",
     "svelte-icons": "^2.1.0",
     "svelte-routing": "^2.11.0",
     "svelte-spa-router": "^4.0.1"
