@@ -84,14 +84,18 @@
 
 
   const fetchData = async () => {
-    try {
-      const mac = params.mac;
-      const response = await axios.post(`http://localhost:3000/devicedata/${mac}`);
-      deviceData = response.data;
-    } catch (error) {
-      console.error('Fehler beim Abrufen der Gerätedaten:', error);
+  try {
+    const mac = params.mac;
+    if (!mac) {
+      console.error('Keine MAC-Adresse bereitgestellt');
+      return;
     }
-  };
+    const response = await axios.post(`http://localhost:3000/devicedata/${mac}`);
+    deviceData = response.data;
+  } catch (error) {
+    console.error('Fehler beim Abrufen der Gerätedaten:', error);
+  }
+};
 
   const createChart = (chartContainer, label, filterType, borderColor, backgroundColor, yMin, yMax) => {
     const ctx = chartContainer.getContext('2d');

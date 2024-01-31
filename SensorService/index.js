@@ -186,7 +186,7 @@ console.log(data);
 });
 
 // GET-Route, um Daten für ein bestimmtes Gerät abzurufen
-app.post("/ /:mac", async (req, res) => {
+app.post("/devicedata/:mac", async (req, res) => {
     const { mac } = req.params;
     console.log('Anfrage für Gerät mit MAC-Adresse:', mac);
   
